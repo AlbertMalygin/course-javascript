@@ -45,13 +45,21 @@ function map(array, func) {
    const sum = reduce([1, 2, 3], (all, current) => all + current);
    console.log(sum); // выведет 6
  */
-function reduce(array, func, result) {
-  for (let i = 0; i < array.length; i++) {
-    if (!result) {
-      result = array[i];
-      continue;
+function reduce(array, func, initial) {
+  let result;
+
+  if (initial) {
+    result = initial;
+
+    for (let i = 0; i < array.length; i++) {
+      result = func(result, array[i], i, array);
     }
-    result = func(result, array[i], i, array);
+  } else {
+    result = array[0];
+
+    for (let i = 1; i < array.length; i++) {
+      result = func(result, array[i], i, array);
+    }
   }
 
   return result;
