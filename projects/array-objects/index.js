@@ -46,20 +46,16 @@ function map(array, func) {
    console.log(sum); // выведет 6
  */
 function reduce(array, func, initial) {
-  let result;
+  let result = array[0];
+  let startIndex = 1;
 
   if (initial) {
+    startIndex = 0;
     result = initial;
+  }
 
-    for (let i = 0; i < array.length; i++) {
-      result = func(result, array[i], i, array);
-    }
-  } else {
-    result = array[0];
-
-    for (let i = 1; i < array.length; i++) {
-      result = func(result, array[i], i, array);
-    }
+  for (let i = startIndex; i < array.length; i++) {
+    result = func(result, array[i], i, array);
   }
 
   return result;
