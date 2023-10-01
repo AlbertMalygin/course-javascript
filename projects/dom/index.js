@@ -11,6 +11,10 @@
    createDivWithText('loftschool') // создаст элемент div, поместит в него 'loftschool' и вернет созданный элемент
  */
 function createDivWithText(text) {
+  const divElem = document.createElement('div');
+  divElem.textContent = text;
+
+  return divElem;
 }
 
 /*
@@ -22,6 +26,7 @@ function createDivWithText(text) {
    prepend(document.querySelector('#one'), document.querySelector('#two')) // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
  */
 function prepend(what, where) {
+  where.prepend(what);
 }
 
 /*
@@ -44,6 +49,15 @@ function prepend(what, where) {
    findAllPSiblings(document.body) // функция должна вернуть массив с элементами div и span т.к. следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
+  const prevPSiblings = [];
+
+  for (const el of where.children) {
+    if (el.nextElementSibling && el.nextElementSibling.tagName === 'P') {
+      prevPSiblings.push(el);
+    }
+  }
+
+  return prevPSiblings;
 }
 
 /*
@@ -66,7 +80,7 @@ function findAllPSiblings(where) {
 function findError(where) {
   const result = [];
 
-  for (const child of where.childNodes) {
+  for (const child of where.children) {
     result.push(child.textContent);
   }
 
@@ -86,6 +100,11 @@ function findError(where) {
    должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+  for (const el of where.childNodes) {
+    if (el.nodeName === '#text') {
+      where.removeChild(el);
+    }
+  }
 }
 
 /*
@@ -109,6 +128,43 @@ function deleteTextNodes(where) {
    }
  */
 function collectDOMStat(root) {
+  const DOMStat = {
+    tags: {},
+    classes: {},
+    texts: 0,
+  };
+
+  function scan(root) {
+    for (const el of root.childNodes) {
+      if (el.nodeName === '#text') {
+        DOMStat.texts++;
+      } else if (el.tagName) {
+        if (!DOMStat.tags[el.tagName]) {
+          DOMStat.tags[el.tagName] = 1;
+        } else {
+          DOMStat.tags[el.tagName]++;
+        }
+
+        if (el.classList && el.classList.length > 0) {
+          for (const className of el.classList) {
+            if (!DOMStat.classes[className]) {
+              DOMStat.classes[className] = 1;
+            } else {
+              DOMStat.classes[className]++;
+            }
+          }
+        }
+      }
+
+      if (el.childNodes.length > 0) {
+        scan(el);
+      }
+    }
+  }
+
+  scan(root);
+
+  return DOMStat;
 }
 
 export {
