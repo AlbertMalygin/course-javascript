@@ -1,9 +1,70 @@
-// eslint-disable-next-line no-unused-vars
-import photosDB from './photos.json';
-// eslint-disable-next-line no-unused-vars
-import friendsDB from './friends.json';
+const PERM_FRIENDS = 2;
+const PERM_PHOTOS = 4;
+const APP_ID = 51765543;
 
 export default {
+  photoCache: {},
+
+  login() {
+    return new Promise((resolve, reject) => {
+      VK.init({
+        apiId: APP_ID,
+      });
+
+      VK.Auth.login((response) => {
+        if (response.session) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      }, PERM_FRIENDS | PERM_PHOTOS);
+    });
+  },
+
+  async init() {
+    this.friends = await this.getFriends();
+  },
+
+  callAPI(method, params) {
+    params.v = 5.154;
+
+    return new Promise((resolve, reject) => {
+      VK.api(method, params, (response) => {
+        if (response.error) {
+          reject(response.error);
+        } else {
+          resolve(response.response);
+        }
+      });
+    });
+  },
+
+  getFriends() {
+    return this.callAPI('friends.get', { fields: 'photo_50, photo_100' });
+  },
+
+  getPhotos(owner) {
+    return this.callAPI('photos.getAll', { owner_id: owner });
+  },
+
+  findSize(photo) {
+    return photo.sizes.find((size) => size.width >= 360);
+  },
+
+  async getFriendPhotos(id) {
+    let photos = this.photoCache[id];
+
+    if (photos) {
+      return photos;
+    }
+
+    photos = await this.getPhotos(id);
+
+    this.photoCache[id] = photos;
+
+    return photos;
+  },
+
   getRandomElement(array) {
     if (!array || !array.length) {
       return null;
@@ -14,11 +75,12 @@ export default {
     return array[randomIndex];
   },
 
-  getNextPhoto() {
-    const friend = this.getRandomElement(friendsDB);
-    const photos = photosDB[friend.id];
-    const randomPhoto = this.getRandomElement(photos);
+  async getNextPhoto() {
+    const friend = this.getRandomElement(this.friends.items);
+    const photos = await this.getFriendPhotos(friend.id);
+    const photo = this.getRandomElement(photos.items);
+    const size = this.findSize(photo);
 
-    return { friend, url: randomPhoto.url };
+    return { friend, id: photo.id, url: size.url };
   },
 };
