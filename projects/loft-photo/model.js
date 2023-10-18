@@ -17,7 +17,7 @@ export default {
         } else {
           reject(response);
         }
-      }, PERM_FRIENDS | PERM_PHOTOS);
+      }, 4);
     });
   },
 
@@ -97,7 +97,7 @@ export default {
     const photos = await this.getFriendPhotos(friend.id);
     const photo = this.getRandomElement(photos.items);
     const size = this.findSize(photo);
-
+    
     return { friend, id: photo.id, url: size.url };
   },
 };

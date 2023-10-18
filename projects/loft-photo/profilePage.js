@@ -17,7 +17,7 @@ export default {
 
     for (const photo of photos.items) {
       const imgSize = model.findSize(photo);
-      const element = document.createElement('div');      
+      const element = document.createElement('div');
 
       element.classList.add('component-user-photo');
       element.dataset.id = photo.id;

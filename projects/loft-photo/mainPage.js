@@ -4,8 +4,13 @@ import profilePage from './profilePage';
 
 export default {
   async getNextPhoto() {
-    const { friend, id, url } = await model.getNextPhoto();
-    this.setFriendAndPhoto(friend, id, url);
+    try {
+      const { friend, id, url } = await model.getNextPhoto();
+      this.setFriendAndPhoto(friend, id, url);
+    } catch (e) {
+      this.getNextPhoto();
+    }
+    
   },
 
   setFriendAndPhoto(friend, id, url) {
