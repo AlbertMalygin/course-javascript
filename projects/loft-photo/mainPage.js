@@ -1,45 +1,68 @@
 import model from './model';
+import pages from './pages';
+import profilePage from './profilePage';
 
 export default {
   async getNextPhoto() {
-    const { friend, id, url } = await model.getNextPhoto();
-    this.setFriendAndPhoto(friend, id, url);
+    try {
+      const { friend, id, url } = await model.getNextPhoto();
+      this.setFriendAndPhoto(friend, id, url);
+    } catch (e) {
+      this.getNextPhoto();
+    }
+    
   },
 
   setFriendAndPhoto(friend, id, url) {
-    const componentPhoto = document.querySelector('.component-photo');
-    const componentHeaderPhoto = document.querySelector('.component-header-photo');
-    const componentHeaderName = document.querySelector('.component-header-name');
+    const friendPhoto = document.querySelector('.component-photo');
+    const friendAvatar = document.querySelector('.component-header-photo');
+    const friendName = document.querySelector('.component-header-name');
+    const userPhoto = document.querySelector('.component-footer-photo');
 
-    componentPhoto.style.backgroundImage = `url(${url})`;
-    componentHeaderPhoto.style.backgroundImage = `url(${friend.photo_50})`;
-    componentHeaderName.textContent = `${friend.first_name} ${friend.last_name}`;
+    this.friend = friend;
+
+    friendPhoto.style.backgroundImage = `url(${url})`;
+    friendAvatar.style.backgroundImage = `url(${friend.photo_50})`;
+    friendName.textContent = `${friend.first_name ?? ''} ${friend.last_name ?? ''}`;
+    userPhoto.style.backgroundImage = `url(${model.me.photo_50})`;
   },
 
   handleEvents() {
-    const componentPhoto = document.querySelector('.component-photo');
+    const photo = document.querySelector('.component-photo');
+    const friendProfileLinkBtn = document.querySelector('.component-header-profile-link');
+    const userProfileLinkBtn = document.querySelector('.component-footer-container-profile-link');
     let startFrom;
 
-    componentPhoto.addEventListener('mousedown', (e) => {
+    photo.addEventListener('mousedown', (e) => {
       e.preventDefault();
       startFrom = e.pageY;
     });
 
-    componentPhoto.addEventListener('mouseup', async (e) => {
+    photo.addEventListener('mouseup', async (e) => {
       if (e.pageY - startFrom < 0) {
         await this.getNextPhoto();
       }
     });
 
-    componentPhoto.addEventListener('touchstart', (e) => {
+    photo.addEventListener('touchstart', (e) => {
       e.preventDefault();
       startFrom = e.changedTouches[0].pageY;
     });
 
-    componentPhoto.addEventListener('touchend', async (e) => {
+    photo.addEventListener('touchend', async (e) => {
       if (e.changedTouches[0].pageY - startFrom < 0) {
         await this.getNextPhoto();
       }
+    });
+
+    friendProfileLinkBtn.addEventListener('click', async () => {
+      await profilePage.setUser(this.friend);
+      pages.openPage('profile');
+    });
+
+    userProfileLinkBtn.addEventListener('click', async () => {
+      await profilePage.setUser(model.me);
+      pages.openPage('profile');
     });
   },
 };
