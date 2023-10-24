@@ -13,11 +13,13 @@ export default {
 
       VK.Auth.login((response) => {
         if (response.session) {
+          this.token = response.session.sid;
           resolve(response);
         } else {
+          console.error(response);
           reject(response);
         }
-      }, 4);
+      }, PERM_FRIENDS | PERM_PHOTOS);
     });
   },
 
@@ -99,5 +101,48 @@ export default {
     const size = this.findSize(photo);
     
     return { friend, id: photo.id, url: size.url };
+  },
+
+  async callServer(method, queryParams, body) {
+    queryParams = {
+      method,
+      ...queryParams
+    };
+
+    const query = Object.entries(queryParams).reduce((all, [name, value]) => {
+      all.push(`${name}=${encodeURIComponent(value)}`);
+      return all;
+    }, []).join('&');
+
+    const params = {
+      header: {
+        vk_token: this.token
+      }
+    };
+
+    if (body) {
+      params.method = 'POST';
+      params.body = JSON.stringify(body);
+    }
+    
+    const response = await fetch(`/loft-photo/?${query}`, params);
+
+    return response.json();
+  },
+
+  async like(photo) {
+    return this.callServer('like', { photo });
+  },
+
+  async photoStats(photo) {
+    return this.callServer('photoStats', { photo });
+  },
+
+  async getComments(photo) {
+    return this.callServer('getComments', { photo });
+  },
+
+  async postComment(photo, text) {
+    return this.callServer('like', { photo }, { text });
   },
 };
