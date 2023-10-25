@@ -4,20 +4,13 @@ import profilePage from './profilePage';
 import commentsTemplate from './commentsTemplate.html.hbs';
 
 export default {
-  errCount: 0,
 
   async getNextPhoto() {
     try {
       const { friend, id, url } = await model.getNextPhoto();
       const photoStats = await model.photoStats(id);
       this.setFriendAndPhoto(friend, id, url, photoStats);
-      errCount = 0;
     } catch (e) {
-      this.errCount++;
-      console.error(e);
-      if (this.errCount > 10) {
-        return;
-      }
       this.getNextPhoto();
     }
     
@@ -52,8 +45,8 @@ export default {
       })
     });
 
-    document.querySelector('component-comments-container-list').innerHTML = '';
-    document.querySelector('component-comments-container-list').append(commentsElements);;
+    document.querySelector('.component-comments-container-list').innerHTML = '';
+    document.querySelector('.component-comments-container-list').append(commentsElements);;
     this.setComments(comments.length);
   },
 
@@ -135,7 +128,7 @@ export default {
     });
 
     commentSend.addEventListener('click', async () => {
-      if (commentInput.ariaValueMax.thim().length) {
+      if (commentInput.value.trim().length) {
         await model.postComment(this.photoID, commentInput.value.trim());
         commentInput.value = '';
         await this.loadComments(this.photoID);

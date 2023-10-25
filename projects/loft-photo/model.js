@@ -105,8 +105,8 @@ export default {
 
   async callServer(method, queryParams, body) {
     queryParams = {
-      method,
-      ...queryParams
+      method, 
+      ...queryParams,     
     };
 
     const query = Object.entries(queryParams).reduce((all, [name, value]) => {
@@ -115,7 +115,7 @@ export default {
     }, []).join('&');
 
     const params = {
-      header: {
+      headers: {
         vk_token: this.token
       }
     };
@@ -125,24 +125,23 @@ export default {
       params.body = JSON.stringify(body);
     }
     
-    const response = await fetch(`/loft-photo/?${query}`, params);
-
+    const response = await fetch(`/loft-photo/api/?${query}`, params);
     return response.json();
   },
 
   async like(photo) {
-    return this.callServer('like', { photo });
+    return await this.callServer('like', { photo });
   },
 
   async photoStats(photo) {
-    return this.callServer('photoStats', { photo });
+    return await this.callServer('photoStats', { photo });
   },
 
   async getComments(photo) {
-    return this.callServer('getComments', { photo });
+    return await this.callServer('getComments', { photo });
   },
 
   async postComment(photo, text) {
-    return this.callServer('like', { photo }, { text });
+    return await this.callServer('postComment', { photo }, { text });
   },
 };
