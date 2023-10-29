@@ -52,18 +52,30 @@ export default {
     };
 
     if (ids) {
-      params[user_ids] = ids;
+      params.user_ids = ids;
     }
 
     return this.callAPI('users.get', params);
   },
 
-  getFriends() {
-    return this.callAPI('friends.get', { fields: 'photo_50, photo_100' });
+  getFriends(id) {
+    const params = {
+      fields: ['photo_50', 'photo_100']
+    };
+
+    if (id) {
+      params.user_id = id;
+    }
+
+    return this.callAPI('friends.get', params);
   },
 
   getPhotos(owner) {
-    return this.callAPI('photos.getAll', { owner_id: owner });
+    const params = {
+      owner_id: owner,
+    };
+    
+    return this.callAPI('photos.getAll', params);
   },
 
   findSize(photo) {
